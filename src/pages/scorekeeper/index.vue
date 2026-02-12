@@ -1,61 +1,73 @@
 <template>
   <view class="page">
     <view class="header">
-      <text class="title">棋牌桌游计分器</text>
-      <text class="subtitle">新建或继续一场对局</text>
+      <text class="title">我的对局</text>
+      <view class="subtitle-row">
+        <text class="subtitle">共 {{ games.length }} 场记录</text>
+      </view>
     </view>
 
-    <view class="cloud">
-      <button class="btn" @tap="pullFromCloud">从云端拉取</button>
-      <button class="btn" @tap="pushToCloud">同步到云端</button>
-    </view>
-
-    <view class="section">
-      <view class="section-header" @tap="toggleCreate">
-        <text class="section-title">新建对局</text>
-        <text class="section-arrow">{{ createOpen ? '˅' : '›' }}</text>
+    <!-- Create Game Card -->
+    <view class="glass-card mb-3 create-card">
+      <view class="card-header" @tap="toggleCreate">
+        <text class="section-title">✨ 新建对局</text>
+        <text class="arrow" :class="{ open: createOpen }">›</text>
       </view>
 
-      <view v-if="createOpen" class="panel">
-        <view class="field">
+      <view v-if="createOpen" class="create-form">
+        <view class="form-item">
           <text class="label">游戏类型</text>
           <picker :range="gameTypeNames" :value="gameTypeIndex" @change="onGameTypeChange">
-            <view class="picker">{{ gameTypeNames[gameTypeIndex] }}</view>
+            <view class="picker-input">{{ gameTypeNames[gameTypeIndex] }}</view>
           </picker>
         </view>
 
-        <view class="field">
-          <text class="label">玩家</text>
-          <view class="players">
-            <view v-for="(_, idx) in playerNames" :key="idx" class="player-row">
-              <input v-model="playerNames[idx]" class="input" placeholder="请输入玩家名称" />
+        <view class="form-item">
+          <text class="label">玩家列表</text>
+          <view class="player-tags">
+            <view v-for="(name, idx) in playerNames" :key="idx" class="player-tag">
+              <input 
+                v-model="playerNames[idx]" 
+                class="tag-input" 
+                placeholder="玩家名" 
+                placeholder-class="ph"
+              />
+              <text v-if="playerNames.length > 2" class="tag-del" @tap="removePlayer(idx)">×</text>
             </view>
-            <view class="actions">
-              <button class="btn" @tap="addPlayerInput">添加玩家</button>
-              <button class="btn-primary" @tap="createNewGame">开始对局</button>
-            </view>
+            <view class="add-tag" @tap="addPlayerInput">+</view>
           </view>
         </view>
+
+        <button class="btn-start hover-lift" @tap="createNewGame">开始记录</button>
       </view>
     </view>
 
-    <view class="section">
-      <view class="section-header">
-        <text class="section-title">对局列表</text>
+    <!-- List -->
+    <view class="list">
+      <view v-if="games.length === 0" class="empty-state">
+        <text class="empty-text">暂无对局记录</text>
       </view>
 
-      <view v-if="games.length === 0" class="empty">
-        <text class="empty-text">暂无对局，先新建一场吧。</text>
-      </view>
-
-      <view v-else class="list">
-        <view v-for="g in games" :key="g.id" class="card" @tap="goSession(g.id)">
-          <view class="card-main">
-            <text class="card-title">{{ getTypeName(g.typeId) }}</text>
-            <text class="card-desc">{{ g.players.map(p => p.name).join('、') }}</text>
+      <view 
+        v-for="g in games" 
+        :key="g.id" 
+        class="game-item glass-card hover-lift" 
+        @tap="goSession(g.id)"
+      >
+        <view class="item-main">
+          <view class="item-header">
+            <text class="item-title">{{ getTypeName(g.typeId) }}</text>
+            <text class="item-time">{{ formatDate(g.createdAt) }}</text>
           </view>
-          <text class="card-arrow">›</text>
+          <view class="item-players">
+            <view v-for="p in g.players.slice(0, 4)" :key="p.id" class="mini-avatar">
+              <image :src="getAvatar(p.name)" class="avatar-img" />
+            </view>
+            <text v-if="g.players.length > 4" class="more-count">+{{ g.players.length - 4 }}</text>
+          </view>
         </view>
+        <view class="item-arrow">→</view>
+        <view class="item-delete" @tap.stop="deleteGame(g.id)">🗑️</view>
       </view>
     </view>
   </view>
@@ -65,6 +77,7 @@
 import { computed, ref } from 'vue'
 import { scorekeeperStore } from '../../features/scorekeeper/store'
 import type { GameId, GameTypeId } from '../../domain/scorekeeper/scorekeeper'
+import { getAvatar } from '../../utils/avatar'
 
 const createOpen = ref(true)
 const gameTypeIndex = ref(0)
@@ -86,6 +99,24 @@ const addPlayerInput = () => {
   playerNames.value.push('')
 }
 
+const removePlayer = (idx: number) => {
+  if (playerNames.value.length > 2) {
+    playerNames.value.splice(idx, 1)
+  }
+}
+
+const deleteGame = (id: GameId) => {
+  uni.showModal({
+    title: '确认删除',
+    content: '确定要删除这条对局记录吗？',
+    success: (res) => {
+      if (res.confirm) {
+        scorekeeperStore.deleteGame(id)
+      }
+    }
+  })
+}
+
 const createNewGame = () => {
   const typeId = scorekeeperStore.gameTypes[gameTypeIndex.value]?.id ?? 'generic'
   const names = playerNames.value.map(v => v.trim()).filter(Boolean)
@@ -96,6 +127,8 @@ const createNewGame = () => {
 
   try {
     const game = scorekeeperStore.createGame(typeId, names)
+    // Reset form
+    playerNames.value = ['', '']
     goSession(game.id)
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : '创建失败'
@@ -110,187 +143,239 @@ const goSession = (id: GameId) => {
 const getTypeName = (typeId: GameTypeId) =>
   scorekeeperStore.gameTypes.find(t => t.id === typeId)?.name ?? typeId
 
-const ensureCloudAvailable = () => {
-  if (!scorekeeperStore.isCloudSyncAvailable()) {
-    uni.showToast({ title: '云同步未配置，当前仅本地存储', icon: 'none' })
-    return false
-  }
-  return true
-}
-
-const pullFromCloud = async () => {
-  if (!ensureCloudAvailable()) return
-  await scorekeeperStore.pullFromCloud()
-  uni.showToast({ title: '已拉取', icon: 'success' })
-}
-
-const pushToCloud = async () => {
-  if (!ensureCloudAvailable()) return
-  await scorekeeperStore.pushToCloud()
-  uni.showToast({ title: '已同步', icon: 'success' })
+const formatDate = (ts: number | undefined) => {
+  if (!ts) return ''
+  const d = new Date(ts)
+  if (Number.isNaN(d.getTime())) return ''
+  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 </script>
 
-<style>
+<style lang="scss">
 .page {
-  padding: 24rpx;
+  padding: 32rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .header {
-  padding: 24rpx 0 16rpx;
+  margin-bottom: 32rpx;
+  
+  .title {
+    font-size: 48rpx;
+    font-weight: 700;
+    color: #1A1A1A;
+    display: block;
+  }
+  
+  .subtitle {
+    font-size: 26rpx;
+    color: #666;
+    margin-top: 8rpx;
+    display: block;
+  }
 }
 
-.title {
-  font-size: 40rpx;
-  font-weight: 600;
-  color: #1f2328;
+.create-card {
+  padding: 24rpx;
+  border-radius: 24rpx;
+  transition: all 0.3s ease;
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8rpx 0;
+  }
+  
+  .section-title {
+    font-size: 32rpx;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .arrow {
+    font-size: 40rpx;
+    color: #999;
+    transition: transform 0.3s;
+    line-height: 1;
+    
+    &.open {
+      transform: rotate(90deg);
+    }
+  }
 }
 
-.subtitle {
-  display: block;
-  margin-top: 12rpx;
-  font-size: 26rpx;
-  color: #6b7280;
-}
-
-.section {
+.create-form {
   margin-top: 24rpx;
-}
-
-.cloud {
-  display: flex;
-  gap: 12rpx;
-  margin-top: 12rpx;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18rpx 0;
-}
-
-.section-title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #111827;
-}
-
-.section-arrow {
-  color: #9ca3af;
-  font-size: 38rpx;
-  padding: 0 8rpx;
-}
-
-.panel {
-  padding: 18rpx;
-  border-radius: 16rpx;
-  background: #ffffff;
-  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
-}
-
-.field + .field {
-  margin-top: 18rpx;
-}
-
-.label {
-  display: block;
-  margin-bottom: 10rpx;
-  font-size: 24rpx;
-  color: #6b7280;
-}
-
-.picker {
-  padding: 18rpx;
-  border-radius: 12rpx;
-  background: #f3f4f6;
-  color: #111827;
-}
-
-.players {
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-}
-
-.player-row {
-  display: flex;
-}
-
-.input {
-  flex: 1;
-  padding: 18rpx;
-  border-radius: 12rpx;
-  background: #f3f4f6;
-}
-
-.actions {
-  display: flex;
-  gap: 12rpx;
-  margin-top: 12rpx;
-}
-
-.btn {
-  flex: 1;
-  background: #f3f4f6;
-  color: #111827;
-  font-size: 28rpx;
-}
-
-.btn-primary {
-  flex: 1;
-  background: #111827;
-  color: #ffffff;
-  font-size: 28rpx;
-}
-
-.empty {
-  padding: 24rpx 18rpx;
-  border-radius: 16rpx;
-  background: #ffffff;
-  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
-}
-
-.empty-text {
-  color: #6b7280;
-  font-size: 26rpx;
+  padding-top: 24rpx;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  
+  .form-item {
+    margin-bottom: 24rpx;
+  }
+  
+  .label {
+    display: block;
+    font-size: 26rpx;
+    color: #666;
+    margin-bottom: 12rpx;
+  }
+  
+  .picker-input {
+    background: rgba(0,0,0,0.03);
+    padding: 20rpx;
+    border-radius: 12rpx;
+    font-size: 28rpx;
+    color: #333;
+  }
+  
+  .player-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16rpx;
+  }
+  
+  .player-tag {
+    position: relative;
+    width: 45%;
+    
+    .tag-input {
+      background: rgba(0,0,0,0.03);
+      padding: 0 20rpx;
+      height: 80rpx;
+      line-height: 80rpx;
+      border-radius: 12rpx;
+      font-size: 28rpx;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .tag-del {
+      position: absolute;
+      right: 10rpx;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 32rpx;
+      padding: 10rpx;
+      z-index: 2;
+    }
+  }
+  
+  .add-tag {
+    width: 64rpx;
+    height: 64rpx;
+    border-radius: 12rpx;
+    background: rgba(91, 108, 255, 0.1);
+    color: #5B6CFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40rpx;
+  }
+  
+  .btn-start {
+    background: #1A1A1A;
+    color: #fff;
+    border-radius: 44rpx;
+    font-size: 30rpx;
+    height: 88rpx;
+    line-height: 88rpx;
+    margin-top: 32rpx;
+    border: none;
+    
+    &:after { border: none; }
+  }
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: 24rpx;
 }
 
-.card {
+.empty-state {
+  padding: 40rpx;
+  text-align: center;
+  
+  .empty-text {
+    color: #999;
+    font-size: 28rpx;
+  }
+}
+
+.game-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 22rpx 18rpx;
-  border-radius: 16rpx;
-  background: #ffffff;
-  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
-}
-
-.card-main {
-  display: flex;
-  flex-direction: column;
-}
-
-.card-title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #111827;
-}
-
-.card-desc {
-  margin-top: 10rpx;
-  font-size: 24rpx;
-  color: #6b7280;
-}
-
-.card-arrow {
-  font-size: 42rpx;
-  color: #9ca3af;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  
+  .item-main {
+    flex: 1;
+  }
+  
+  .item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16rpx;
+  }
+  
+  .item-title {
+    font-size: 32rpx;
+    font-weight: 600;
+    color: #1A1A1A;
+  }
+  
+  .item-time {
+    font-size: 24rpx;
+    color: #999;
+  }
+  
+  .item-players {
+    display: flex;
+    align-items: center;
+    
+    .mini-avatar {
+      width: 48rpx;
+      height: 48rpx;
+      border-radius: 50%;
+      border: 2rpx solid #fff;
+      margin-right: -12rpx;
+      overflow: hidden;
+      
+      .avatar-img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    
+    .more-count {
+      margin-left: 20rpx;
+      font-size: 24rpx;
+      color: #999;
+    }
+  }
+  
+  .item-arrow {
+    font-size: 32rpx;
+    color: #CCC;
+    margin-left: 16rpx;
+  }
+  
+  .item-delete {
+    padding: 16rpx;
+    margin-left: 8rpx;
+    color: #FF6B6B;
+    font-size: 32rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:active {
+      opacity: 0.7;
+    }
+  }
 }
 </style>

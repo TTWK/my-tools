@@ -20,6 +20,7 @@ export interface RoundEvent {
 export interface Game {
   id: GameId
   typeId: GameTypeId
+  createdAt: number
   config: Record<string, unknown>
   players: Player[]
   rounds: RoundEvent[]
@@ -63,6 +64,7 @@ export const createGame = (input: CreateGameInput): Game => {
   return {
     id: input.id ?? createId('g'),
     typeId: input.typeId,
+    createdAt: now,
     config: input.config ?? {},
     players,
     rounds: [],
@@ -93,11 +95,12 @@ export const renamePlayer = (game: Game, playerId: PlayerId, nextName: string): 
 }
 
 export const removePlayer = (game: Game, playerId: PlayerId): Game => {
-  const usedInAnyRound = game.rounds.some(r =>
-    Object.prototype.hasOwnProperty.call(r.deltas, playerId),
-  )
+  const usedInAnyRound = game.rounds.some(r => {
+    const delta = r.deltas[playerId]
+    return typeof delta === 'number' && delta !== 0
+  })
   if (usedInAnyRound) {
-    throw new Error('该玩家已参与历史回合，禁止删除')
+    throw new Error('该玩家已参与有效计分，禁止删除')
   }
   return { ...game, players: game.players.filter(p => p.id !== playerId) }
 }

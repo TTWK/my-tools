@@ -7,13 +7,13 @@ import {
   getScoreTable,
   redo,
   renamePlayer,
+  removePlayer,
   undo,
 } from '../../domain/scorekeeper/scorekeeper'
 import {
   loadScorekeeperGames,
   saveScorekeeperGames,
 } from '../../services/storage/scorekeeper-storage'
-import { createScorekeeperCloudSyncClient } from '../../services/sync/scorekeeper-cloud-sync'
 import { GAME_TYPES } from './game-types'
 
 interface ScorekeeperState {
@@ -25,7 +25,6 @@ const state = reactive<ScorekeeperState>({
 })
 
 let persistTimer: ReturnType<typeof setTimeout> | undefined
-const cloudSyncClient = createScorekeeperCloudSyncClient()
 
 const schedulePersist = () => {
   if (persistTimer) clearTimeout(persistTimer)
@@ -48,18 +47,6 @@ export const scorekeeperStore = {
   getScoreTable: (game: Game) => computed(() => getScoreTable(game)),
   hydrateFromLocal: () => {
     state.games = loadScorekeeperGames()
-  },
-  isCloudSyncAvailable: () => cloudSyncClient.isAvailable(),
-  pullFromCloud: async () => {
-    if (!cloudSyncClient.isAvailable()) return
-    const games = await cloudSyncClient.pullGames()
-    if (!games) return
-    state.games = games
-    schedulePersist()
-  },
-  pushToCloud: async () => {
-    if (!cloudSyncClient.isAvailable()) return
-    await cloudSyncClient.pushGames(state.games)
   },
 
   createGame: (typeId: GameTypeId, playerNames: string[]) => {
@@ -85,6 +72,12 @@ export const scorekeeperStore = {
     replaceGame(renamePlayer(game, playerId, nextName))
   },
 
+  removePlayer: (gameId: GameId, playerId: PlayerId) => {
+    const game = state.games.find(g => g.id === gameId)
+    if (!game) throw new Error('对局不存在')
+    replaceGame(removePlayer(game, playerId))
+  },
+
   addRound: (gameId: GameId, deltas: Record<PlayerId, number>, note?: string) => {
     const game = state.games.find(g => g.id === gameId)
     if (!game) throw new Error('对局不存在')
@@ -101,5 +94,13 @@ export const scorekeeperStore = {
     const game = state.games.find(g => g.id === gameId)
     if (!game) throw new Error('对局不存在')
     replaceGame(redo(game))
+  },
+
+  deleteGame: (gameId: GameId) => {
+    const idx = state.games.findIndex(g => g.id === gameId)
+    if (idx >= 0) {
+      state.games.splice(idx, 1)
+      schedulePersist()
+    }
   },
 }

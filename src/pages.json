@@ -24,12 +24,6 @@
       "style": {
         "navigationBarTitleText": "历史记录"
       }
-    },
-    {
-      "path": "pages/feedback/index",
-      "style": {
-        "navigationBarTitleText": "反馈"
-      }
     }
   ],
   "globalStyle": {

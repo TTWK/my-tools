@@ -1,4 +1,3 @@
-import { CLOUD_ENV_ID, ENABLE_CLOUD_SYNC } from '../../config/cloud'
 import {
   loadFeedbackItems,
   saveFeedbackItems,
@@ -34,22 +33,6 @@ const collectSystemInfo = (): Record<string, unknown> => {
   }
 }
 
-const tryUploadToCloud = async (item: FeedbackItem) => {
-  if (!ENABLE_CLOUD_SYNC || !CLOUD_ENV_ID) return false
-  if (typeof wx === 'undefined' || !wx?.cloud?.callFunction) return false
-
-  try {
-    const res = await wx.cloud.callFunction({
-      name: 'feedbackSubmit',
-      data: { item },
-    })
-    const result = (res as { result?: unknown } | undefined)?.result as { ok?: unknown } | undefined
-    return result?.ok === true
-  } catch {
-    return false
-  }
-}
-
 export const submitFeedback = async (input: SubmitFeedbackInput) => {
   const message = input.message.trim()
   if (!message) throw new Error('请填写问题描述')
@@ -69,11 +52,5 @@ export const submitFeedback = async (input: SubmitFeedbackInput) => {
   items.unshift(item)
   saveFeedbackItems(items)
 
-  const uploaded = await tryUploadToCloud(item)
-  if (uploaded) {
-    const next = loadFeedbackItems().map(v => (v.id === item.id ? { ...v, uploaded: true } : v))
-    saveFeedbackItems(next)
-  }
-
-  return { item, uploaded }
+  return { item, uploaded: false }
 }
