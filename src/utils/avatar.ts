@@ -2,22 +2,23 @@
 const djb2 = (str: string): number => {
   let hash = 5381
   for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) + hash) + str.charCodeAt(i)
+    hash = (hash << 5) + hash + str.charCodeAt(i)
   }
   return Math.abs(hash)
 }
 
 const COLORS = {
   warm: ['#FF6B6B', '#FF9F43', '#FECA57', '#FF9FF3', '#F368E0'],
-  cool: ['#54A0FF', '#2E86DE', '#00D2D3', '#1DD1A1', '#5F27CD']
+  cool: ['#54A0FF', '#2E86DE', '#00D2D3', '#1DD1A1', '#5F27CD'],
 }
 
 // Simple SVG templates for flat avatars
 const generateSvg = (index: number, type: 'warm' | 'cool') => {
-  const bg = type === 'warm' 
-    ? COLORS.warm[index % COLORS.warm.length] 
-    : COLORS.cool[index % COLORS.cool.length]
-  
+  const bg =
+    type === 'warm'
+      ? COLORS.warm[index % COLORS.warm.length]
+      : COLORS.cool[index % COLORS.cool.length]
+
   // Simple geometric faces
   const svg = `
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">

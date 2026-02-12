@@ -28,7 +28,7 @@
           <text class="add-text">添加玩家</text>
         </view>
       </view>
-      
+
       <!-- Add Player Modal/Input (Inline for now) -->
       <view v-if="isAddingPlayer" class="add-player-row glass-card mb-2">
         <input v-model="newPlayerName" class="new-player-input" placeholder="输入玩家姓名" focus />
@@ -39,11 +39,7 @@
       </view>
 
       <view class="player-grid">
-        <view 
-          v-for="p in game.players" 
-          :key="p.id" 
-          class="player-card glass-card"
-        >
+        <view v-for="p in game.players" :key="p.id" class="player-card glass-card">
           <!-- Left: Avatar & Name -->
           <view class="player-basic">
             <image :src="getAvatar(p.name)" class="avatar" />
@@ -53,9 +49,9 @@
                 class="player-name-input"
                 @blur="() => onRenamePlayer(p.id)"
               />
-              <view 
-                v-if="canRemovePlayer(p.id)" 
-                class="btn-remove-player" 
+              <view
+                v-if="canRemovePlayer(p.id)"
+                class="btn-remove-player"
                 @tap="onRemovePlayer(p.id)"
               >
                 <text class="icon-remove">×</text>
@@ -98,7 +94,6 @@
         </view>
       </view>
     </view>
-
   </view>
 
   <view v-else class="page empty-state">
@@ -111,10 +106,7 @@
 import { computed, reactive, ref, watchEffect } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { scorekeeperStore } from '../../features/scorekeeper/store'
-import {
-  getScoreTable,
-  type PlayerId,
-} from '../../domain/scorekeeper/scorekeeper'
+import { getScoreTable, type PlayerId } from '../../domain/scorekeeper/scorekeeper'
 import { getAvatar } from '../../utils/avatar'
 
 const gameId = ref<string>('')
@@ -239,8 +231,8 @@ const canRemovePlayer = (pid: PlayerId) => {
   if (!game.value) return false
   // Check if player has any non-zero delta in rounds
   return !game.value.rounds.some(r => {
-     const delta = r.deltas[pid]
-     return typeof delta === 'number' && delta !== 0
+    const delta = r.deltas[pid]
+    return typeof delta === 'number' && delta !== 0
   })
 }
 
@@ -249,7 +241,7 @@ const onRemovePlayer = (pid: PlayerId) => {
   uni.showModal({
     title: '确认移除',
     content: '确定要移除该玩家吗？',
-    success: (res) => {
+    success: res => {
       if (res.confirm && game.value) {
         try {
           scorekeeperStore.removePlayer(game.value.id, pid)
@@ -258,7 +250,7 @@ const onRemovePlayer = (pid: PlayerId) => {
           uni.showToast({ title: String(e), icon: 'none' })
         }
       }
-    }
+    },
   })
 }
 </script>
@@ -277,48 +269,48 @@ const onRemovePlayer = (pid: PlayerId) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
+
   .header-info {
     display: flex;
     flex-direction: column;
   }
-  
+
   .title {
     font-size: 34rpx;
     font-weight: 700;
     color: #333;
   }
-  
+
   .game-id {
     font-size: 24rpx;
     color: #999;
     font-family: monospace;
     margin-top: 4rpx;
   }
-  
+
   .header-actions {
     display: flex;
     gap: 16rpx;
   }
-  
+
   .icon-btn {
     width: 72rpx;
     height: 72rpx;
     border-radius: 50%;
-    background: rgba(255,255,255,0.4);
+    background: rgba(255, 255, 255, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
-    
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+
     .iconfont {
       font-size: 36rpx;
       color: #333;
       line-height: 1;
     }
-    
+
     &:active {
-      background: rgba(255,255,255,0.6);
+      background: rgba(255, 255, 255, 0.6);
       transform: scale(0.95);
     }
   }
@@ -342,25 +334,25 @@ const onRemovePlayer = (pid: PlayerId) => {
   display: flex;
   align-items: center;
   gap: 8rpx;
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
   padding: 8rpx 20rpx;
   border-radius: 30rpx;
-  
+
   .plus-icon {
     font-size: 32rpx;
-    color: #5B6CFF;
+    color: #5b6cff;
     font-weight: bold;
     line-height: 1;
   }
-  
+
   .add-text {
     font-size: 26rpx;
-    color: #5B6CFF;
+    color: #5b6cff;
     font-weight: 500;
   }
-  
+
   &:active {
-    background: rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -370,29 +362,29 @@ const onRemovePlayer = (pid: PlayerId) => {
   padding: 20rpx;
   border-radius: 20rpx;
   gap: 16rpx;
-  
+
   .new-player-input {
     flex: 1;
     font-size: 28rpx;
     height: 60rpx;
-    background: rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.5);
     border-radius: 12rpx;
     padding: 0 16rpx;
   }
-  
+
   .add-actions {
     display: flex;
     gap: 24rpx;
     align-items: center;
-    
+
     .btn-cancel {
       font-size: 26rpx;
       color: #999;
     }
-    
+
     .btn-confirm {
       font-size: 26rpx;
-      color: #5B6CFF;
+      color: #5b6cff;
       font-weight: 600;
     }
   }
@@ -411,37 +403,37 @@ const onRemovePlayer = (pid: PlayerId) => {
   display: flex;
   align-items: center;
   gap: 16rpx;
-  
+
   .player-basic {
     display: flex;
     align-items: center;
     flex: 1; /* Takes available space */
     min-width: 0; /* Allow shrinking */
-    
+
     .avatar {
       width: 80rpx;
       height: 80rpx;
       border-radius: 50%;
       margin-right: 16rpx;
-      border: 2rpx solid rgba(255,255,255,0.5);
+      border: 2rpx solid rgba(255, 255, 255, 0.5);
       flex-shrink: 0;
     }
-    
+
     .name-container {
       flex: 1;
       display: flex;
       align-items: center;
       min-width: 0;
-      
+
       .player-name-input {
         font-size: 30rpx;
         font-weight: 600;
-        color: #1A1A1A;
+        color: #1a1a1a;
         height: 44rpx;
         flex: 1;
         min-width: 0;
       }
-      
+
       .btn-remove-player {
         width: 44rpx;
         height: 44rpx;
@@ -450,23 +442,25 @@ const onRemovePlayer = (pid: PlayerId) => {
         justify-content: center;
         margin-left: 8rpx;
         border-radius: 50%;
-        background: rgba(0,0,0,0.05);
-        
+        background: rgba(0, 0, 0, 0.05);
+
         .icon-remove {
           font-size: 32rpx;
           color: #999;
           line-height: 1;
           margin-top: -4rpx;
         }
-        
+
         &:active {
           background: rgba(255, 0, 0, 0.1);
-          .icon-remove { color: #ff4d4f; }
+          .icon-remove {
+            color: #ff4d4f;
+          }
         }
       }
     }
   }
-  
+
   .player-total {
     display: flex;
     flex-direction: column;
@@ -474,30 +468,30 @@ const onRemovePlayer = (pid: PlayerId) => {
     justify-content: center;
     margin: 0 16rpx;
     min-width: 80rpx;
-    
+
     .score-val {
       font-size: 40rpx; /* Prominent size */
       font-weight: 700;
-      color: #5B6CFF;
+      color: #5b6cff;
       line-height: 1;
     }
-    
+
     .score-label {
       font-size: 20rpx;
       color: #999;
       margin-top: 4rpx;
     }
   }
-  
+
   .score-input-group {
     display: flex;
     align-items: center;
     gap: 8rpx;
-    background: rgba(255,255,255,0.3);
+    background: rgba(255, 255, 255, 0.3);
     padding: 6rpx;
     border-radius: 16rpx;
     flex-shrink: 0;
-    
+
     .stepper-btn {
       width: 56rpx;
       height: 56rpx;
@@ -507,20 +501,20 @@ const onRemovePlayer = (pid: PlayerId) => {
       align-items: center;
       justify-content: center;
       font-size: 32rpx;
-      color: #5B6CFF;
-      box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.05);
-      
+      color: #5b6cff;
+      box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+
       &:active {
         transform: scale(0.95);
       }
     }
-    
+
     .round-score-input {
       width: 72rpx;
       text-align: center;
       font-size: 32rpx;
       font-weight: 700;
-      color: #1A1A1A;
+      color: #1a1a1a;
     }
   }
 }
@@ -538,7 +532,7 @@ const onRemovePlayer = (pid: PlayerId) => {
 
 /* 4. Note Input Height */
 .note-input {
-  background: rgba(0,0,0,0.03);
+  background: rgba(0, 0, 0, 0.03);
   padding: 20rpx;
   border-radius: 16rpx;
   font-size: 28rpx;
@@ -550,7 +544,7 @@ const onRemovePlayer = (pid: PlayerId) => {
 .action-row {
   display: flex;
   gap: 24rpx;
-  
+
   button {
     flex: 1;
     border-radius: 44rpx;
@@ -559,17 +553,19 @@ const onRemovePlayer = (pid: PlayerId) => {
     line-height: 88rpx;
     border: none;
     font-weight: 600;
-    
-    &:after { border: none; }
+
+    &:after {
+      border: none;
+    }
   }
-  
+
   .btn-reset {
-    background: rgba(0,0,0,0.05);
+    background: rgba(0, 0, 0, 0.05);
     color: #666;
   }
-  
+
   .btn-submit {
-    background: #5B6CFF;
+    background: #5b6cff;
     color: #fff;
     box-shadow: 0 4rpx 16rpx rgba(91, 108, 255, 0.3);
   }

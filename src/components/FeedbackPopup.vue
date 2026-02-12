@@ -5,13 +5,13 @@
         <text class="popup-title">反馈与建议</text>
         <text class="close-btn" @tap="close">×</text>
       </view>
-      
+
       <scroll-view scroll-y class="popup-body">
         <view class="form-item">
           <text class="label">问题类型</text>
           <view class="tags">
-            <view 
-              v-for="type in ['功能建议', '程序Bug', '其他']" 
+            <view
+              v-for="type in ['功能建议', '程序Bug', '其他']"
               :key="type"
               class="tag"
               :class="{ active: form.type === type }"
@@ -24,9 +24,9 @@
 
         <view class="form-item">
           <text class="label">详细描述</text>
-          <textarea 
-            v-model="form.message" 
-            class="input-area" 
+          <textarea
+            v-model="form.message"
+            class="input-area"
             placeholder="请描述您遇到的问题或建议..."
             :maxlength="500"
           />
@@ -34,29 +34,17 @@
 
         <view class="form-item">
           <text class="label">联系方式 (选填)</text>
-          <input 
-            v-model="form.contact" 
-            class="input-field" 
-            placeholder="手机号/邮箱/微信"
-          />
+          <input v-model="form.contact" class="input-field" placeholder="手机号/邮箱/微信" />
         </view>
 
         <view class="form-item">
           <text class="label">图片上传 ({{ form.images.length }}/3)</text>
           <view class="image-grid">
-            <view 
-              v-for="(img, index) in form.images" 
-              :key="index" 
-              class="image-preview"
-            >
+            <view v-for="(img, index) in form.images" :key="index" class="image-preview">
               <image :src="img" mode="aspectFill" class="thumb" />
               <view class="del-btn" @tap="removeImage(index)">×</view>
             </view>
-            <view 
-              v-if="form.images.length < 3" 
-              class="add-btn" 
-              @tap="chooseImage"
-            >
+            <view v-if="form.images.length < 3" class="add-btn" @tap="chooseImage">
               <text class="plus">+</text>
             </view>
           </view>
@@ -64,13 +52,7 @@
       </scroll-view>
 
       <view class="popup-footer">
-        <button 
-          class="submit-btn hover-lift" 
-          :loading="submitting" 
-          @tap="submit"
-        >
-          提交反馈
-        </button>
+        <button class="submit-btn hover-lift" :loading="submitting" @tap="submit">提交反馈</button>
       </view>
     </view>
   </view>
@@ -91,7 +73,7 @@ const form = reactive({
   type: '功能建议',
   message: '',
   contact: '',
-  images: [] as string[]
+  images: [] as string[],
 })
 
 const close = () => {
@@ -101,9 +83,9 @@ const close = () => {
 const chooseImage = () => {
   uni.chooseImage({
     count: 3 - form.images.length,
-    success: (res) => {
+    success: res => {
       form.images.push(...res.tempFilePaths)
-    }
+    },
   })
 }
 
@@ -119,13 +101,13 @@ const submit = async () => {
 
   submitting.value = true
   try {
-    // Note: Image upload logic would go here. 
+    // Note: Image upload logic would go here.
     // Since we removed cloud, we just store local paths or simulate upload.
     await submitFeedback({
       message: `[${form.type}] ${form.message}`,
-      contact: form.contact
+      contact: form.contact,
     })
-    
+
     uni.showToast({ title: '感谢您的反馈', icon: 'success' })
     form.message = ''
     form.images = []
@@ -164,8 +146,12 @@ const submit = async () => {
 }
 
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .popup-header {
@@ -178,7 +164,7 @@ const submit = async () => {
 .popup-title {
   font-size: 36rpx;
   font-weight: 600;
-  color: #1A1A1A;
+  color: #1a1a1a;
 }
 
 .close-btn {
@@ -210,13 +196,13 @@ const submit = async () => {
 
 .tag {
   padding: 12rpx 24rpx;
-  background: #F5F7FA;
+  background: #f5f7fa;
   border-radius: 32rpx;
   font-size: 26rpx;
   color: #666;
   &.active {
-    background: #E0E7FF;
-    color: #5B6CFF;
+    background: #e0e7ff;
+    color: #5b6cff;
     font-weight: 500;
   }
 }
@@ -224,7 +210,7 @@ const submit = async () => {
 .input-area {
   width: 100%;
   height: 200rpx;
-  background: #F9FAFB;
+  background: #f9fafb;
   border-radius: 12rpx;
   padding: 20rpx;
   font-size: 28rpx;
@@ -234,7 +220,7 @@ const submit = async () => {
 .input-field {
   width: 100%;
   height: 80rpx;
-  background: #F9FAFB;
+  background: #f9fafb;
   border-radius: 12rpx;
   padding: 0 20rpx;
   font-size: 28rpx;
@@ -246,7 +232,8 @@ const submit = async () => {
   gap: 16rpx;
 }
 
-.image-preview, .add-btn {
+.image-preview,
+.add-btn {
   width: 160rpx;
   height: 160rpx;
   border-radius: 12rpx;
@@ -260,8 +247,8 @@ const submit = async () => {
 }
 
 .add-btn {
-  background: #F9FAFB;
-  border: 2rpx dashed #DDD;
+  background: #f9fafb;
+  border: 2rpx dashed #ddd;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -269,14 +256,14 @@ const submit = async () => {
 
 .plus {
   font-size: 60rpx;
-  color: #CCC;
+  color: #ccc;
 }
 
 .del-btn {
   position: absolute;
   top: -10rpx;
   right: -10rpx;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   color: #fff;
   width: 36rpx;
   height: 36rpx;
@@ -287,7 +274,7 @@ const submit = async () => {
 }
 
 .submit-btn {
-  background: #5B6CFF;
+  background: #5b6cff;
   color: #fff;
   border-radius: 44rpx;
   font-size: 32rpx;

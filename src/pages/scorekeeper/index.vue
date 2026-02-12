@@ -26,10 +26,10 @@
           <text class="label">玩家列表</text>
           <view class="player-tags">
             <view v-for="(name, idx) in playerNames" :key="idx" class="player-tag">
-              <input 
-                v-model="playerNames[idx]" 
-                class="tag-input" 
-                placeholder="玩家名" 
+              <input
+                v-model="playerNames[idx]"
+                class="tag-input"
+                placeholder="玩家名"
                 placeholder-class="ph"
               />
               <text v-if="playerNames.length > 2" class="tag-del" @tap="removePlayer(idx)">×</text>
@@ -48,10 +48,10 @@
         <text class="empty-text">暂无对局记录</text>
       </view>
 
-      <view 
-        v-for="g in games" 
-        :key="g.id" 
-        class="game-item glass-card hover-lift" 
+      <view
+        v-for="g in games"
+        :key="g.id"
+        class="game-item glass-card hover-lift"
         @tap="goSession(g.id)"
       >
         <view class="item-main">
@@ -109,11 +109,11 @@ const deleteGame = (id: GameId) => {
   uni.showModal({
     title: '确认删除',
     content: '确定要删除这条对局记录吗？',
-    success: (res) => {
+    success: res => {
       if (res.confirm) {
         scorekeeperStore.deleteGame(id)
       }
-    }
+    },
   })
 }
 
@@ -160,14 +160,14 @@ const formatDate = (ts: number | undefined) => {
 
 .header {
   margin-bottom: 32rpx;
-  
+
   .title {
     font-size: 48rpx;
     font-weight: 700;
-    color: #1A1A1A;
+    color: #1a1a1a;
     display: block;
   }
-  
+
   .subtitle {
     font-size: 26rpx;
     color: #666;
@@ -180,26 +180,26 @@ const formatDate = (ts: number | undefined) => {
   padding: 24rpx;
   border-radius: 24rpx;
   transition: all 0.3s ease;
-  
+
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8rpx 0;
   }
-  
+
   .section-title {
     font-size: 32rpx;
     font-weight: 600;
     color: #333;
   }
-  
+
   .arrow {
     font-size: 40rpx;
     color: #999;
     transition: transform 0.3s;
     line-height: 1;
-    
+
     &.open {
       transform: rotate(90deg);
     }
@@ -209,39 +209,39 @@ const formatDate = (ts: number | undefined) => {
 .create-form {
   margin-top: 24rpx;
   padding-top: 24rpx;
-  border-top: 1px solid rgba(0,0,0,0.05);
-  
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+
   .form-item {
     margin-bottom: 24rpx;
   }
-  
+
   .label {
     display: block;
     font-size: 26rpx;
     color: #666;
     margin-bottom: 12rpx;
   }
-  
+
   .picker-input {
-    background: rgba(0,0,0,0.03);
+    background: rgba(0, 0, 0, 0.03);
     padding: 20rpx;
     border-radius: 12rpx;
     font-size: 28rpx;
     color: #333;
   }
-  
+
   .player-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 16rpx;
   }
-  
+
   .player-tag {
     position: relative;
     width: 45%;
-    
+
     .tag-input {
-      background: rgba(0,0,0,0.03);
+      background: rgba(0, 0, 0, 0.03);
       padding: 0 20rpx;
       height: 80rpx;
       line-height: 80rpx;
@@ -250,7 +250,7 @@ const formatDate = (ts: number | undefined) => {
       width: 100%;
       box-sizing: border-box;
     }
-    
+
     .tag-del {
       position: absolute;
       right: 10rpx;
@@ -262,21 +262,21 @@ const formatDate = (ts: number | undefined) => {
       z-index: 2;
     }
   }
-  
+
   .add-tag {
     width: 64rpx;
     height: 64rpx;
     border-radius: 12rpx;
     background: rgba(91, 108, 255, 0.1);
-    color: #5B6CFF;
+    color: #5b6cff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 40rpx;
   }
-  
+
   .btn-start {
-    background: #1A1A1A;
+    background: #1a1a1a;
     color: #fff;
     border-radius: 44rpx;
     font-size: 30rpx;
@@ -284,8 +284,10 @@ const formatDate = (ts: number | undefined) => {
     line-height: 88rpx;
     margin-top: 32rpx;
     border: none;
-    
-    &:after { border: none; }
+
+    &:after {
+      border: none;
+    }
   }
 }
 
@@ -298,7 +300,7 @@ const formatDate = (ts: number | undefined) => {
 .empty-state {
   padding: 40rpx;
   text-align: center;
-  
+
   .empty-text {
     color: #999;
     font-size: 28rpx;
@@ -310,33 +312,33 @@ const formatDate = (ts: number | undefined) => {
   align-items: center;
   padding: 24rpx;
   border-radius: 20rpx;
-  
+
   .item-main {
     flex: 1;
   }
-  
+
   .item-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16rpx;
   }
-  
+
   .item-title {
     font-size: 32rpx;
     font-weight: 600;
-    color: #1A1A1A;
+    color: #1a1a1a;
   }
-  
+
   .item-time {
     font-size: 24rpx;
     color: #999;
   }
-  
+
   .item-players {
     display: flex;
     align-items: center;
-    
+
     .mini-avatar {
       width: 48rpx;
       height: 48rpx;
@@ -344,35 +346,35 @@ const formatDate = (ts: number | undefined) => {
       border: 2rpx solid #fff;
       margin-right: -12rpx;
       overflow: hidden;
-      
+
       .avatar-img {
         width: 100%;
         height: 100%;
       }
     }
-    
+
     .more-count {
       margin-left: 20rpx;
       font-size: 24rpx;
       color: #999;
     }
   }
-  
+
   .item-arrow {
     font-size: 32rpx;
-    color: #CCC;
+    color: #ccc;
     margin-left: 16rpx;
   }
-  
+
   .item-delete {
     padding: 16rpx;
     margin-left: 8rpx;
-    color: #FF6B6B;
+    color: #ff6b6b;
     font-size: 32rpx;
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     &:active {
       opacity: 0.7;
     }

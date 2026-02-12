@@ -16,16 +16,24 @@ onHide(() => {
 <style>
 /* Global Styles */
 page {
-  font-family: 'Inter', 'Source Han Sans CN', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #F5F7FA;
-  color: #1A1A1A;
+  font-family:
+    'Inter',
+    'Source Han Sans CN',
+    -apple-system,
+    BlinkMacSystemFont,
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  background-color: #f5f7fa;
+  color: #1a1a1a;
   line-height: 1.5;
 }
 
 @media (prefers-color-scheme: dark) {
   page {
     background-color: #121212;
-    color: #E0E0E0;
+    color: #e0e0e0;
   }
 }
 
@@ -46,7 +54,9 @@ page {
 }
 
 .hover-lift {
-  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease-out;
+  transition:
+    transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+    box-shadow 0.3s ease-out;
 }
 
 .hover-lift:active {
@@ -54,9 +64,19 @@ page {
 }
 
 /* 8px Grid Utilities */
-.mb-1 { margin-bottom: 8px; }
-.mb-2 { margin-bottom: 16px; }
-.mb-3 { margin-bottom: 24px; }
-.p-2 { padding: 16px; }
-.p-3 { padding: 24px; }
+.mb-1 {
+  margin-bottom: 8px;
+}
+.mb-2 {
+  margin-bottom: 16px;
+}
+.mb-3 {
+  margin-bottom: 24px;
+}
+.p-2 {
+  padding: 16px;
+}
+.p-3 {
+  padding: 24px;
+}
 </style>

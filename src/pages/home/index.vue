@@ -25,7 +25,11 @@
       </view>
     </view>
 
-    <FeedbackPopup v-if="showFeedback" :visible="showFeedback" @update:visible="val => showFeedback = val" />
+    <FeedbackPopup
+      v-if="showFeedback"
+      :visible="showFeedback"
+      @update:visible="val => (showFeedback = val)"
+    />
   </view>
 </template>
 
@@ -51,16 +55,16 @@ const goScorekeeper = () => {
 
 .header {
   margin-bottom: 64rpx;
-  
+
   .title {
     font-size: 48rpx;
     font-weight: 700;
-    color: #1A1A1A;
+    color: #1a1a1a;
     display: block;
     margin-bottom: 16rpx;
     letter-spacing: -0.5px;
   }
-  
+
   .subtitle {
     font-size: 28rpx;
     color: #666;
@@ -80,17 +84,17 @@ const goScorekeeper = () => {
   margin-bottom: 32rpx;
   position: relative;
   overflow: hidden;
-  
+
   .card-icon {
     width: 88rpx;
     height: 88rpx;
-    background: linear-gradient(135deg, #E0E7FF 0%, #F5F7FA 100%);
+    background: linear-gradient(135deg, #e0e7ff 0%, #f5f7fa 100%);
     border-radius: 20rpx;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 24rpx;
-    
+
     .emoji {
       font-size: 40rpx;
     }
@@ -98,25 +102,25 @@ const goScorekeeper = () => {
 
   .card-main {
     flex: 1;
-    
+
     .card-title {
       font-size: 34rpx;
       font-weight: 600;
-      color: #1A1A1A;
+      color: #1a1a1a;
       display: block;
       margin-bottom: 8rpx;
     }
-    
+
     .card-desc {
       font-size: 24rpx;
       color: #888;
       line-height: 1.4;
     }
   }
-  
+
   .card-arrow {
     font-size: 40rpx;
-    color: #CCC;
+    color: #ccc;
     font-weight: 300;
   }
 }
@@ -131,21 +135,21 @@ const goScorekeeper = () => {
   display: flex;
   align-items: center;
   padding: 16rpx 32rpx;
-  background: rgba(0,0,0,0.03);
+  background: rgba(0, 0, 0, 0.03);
   border-radius: 40rpx;
-  
+
   text {
     font-size: 26rpx;
     color: #999;
   }
-  
+
   .icon {
     margin-right: 8rpx;
     font-size: 24rpx;
   }
-  
+
   &:active {
-    background: rgba(0,0,0,0.06);
+    background: rgba(0, 0, 0, 0.06);
   }
 }
 </style>
