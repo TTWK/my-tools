@@ -4,7 +4,7 @@
     {
       "path": "pages/home/index",
       "style": {
-        "navigationBarTitleText": "工具聚合"
+        "navigationBarTitleText": "全能集"
       }
     },
     {
@@ -28,7 +28,7 @@
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "工具聚合",
+    "navigationBarTitleText": "全能集",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
   }
