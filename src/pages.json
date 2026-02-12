@@ -1,0 +1,41 @@
+{
+  "pages": [
+    //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+    {
+      "path": "pages/home/index",
+      "style": {
+        "navigationBarTitleText": "工具聚合"
+      }
+    },
+    {
+      "path": "pages/scorekeeper/index",
+      "style": {
+        "navigationBarTitleText": "计分器"
+      }
+    },
+    {
+      "path": "pages/scorekeeper/session",
+      "style": {
+        "navigationBarTitleText": "对局详情"
+      }
+    },
+    {
+      "path": "pages/scorekeeper/history",
+      "style": {
+        "navigationBarTitleText": "历史记录"
+      }
+    },
+    {
+      "path": "pages/feedback/index",
+      "style": {
+        "navigationBarTitleText": "反馈"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "工具聚合",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  }
+}
