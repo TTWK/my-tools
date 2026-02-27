@@ -7,7 +7,7 @@
       </view>
     </view>
 
-    <!-- Create Game Card -->
+    <!-- 新建对局卡片 -->
     <view class="glass-card mb-3 create-card">
       <view class="card-header" @tap="toggleCreate">
         <text class="section-title">✨ 新建对局</text>
@@ -42,7 +42,7 @@
       </view>
     </view>
 
-    <!-- List -->
+    <!-- 列表 -->
     <view class="list">
       <view v-if="games.length === 0" class="empty-state">
         <text class="empty-text">暂无对局记录</text>
@@ -127,7 +127,7 @@ const createNewGame = () => {
 
   try {
     const game = scorekeeperStore.createGame(typeId, names)
-    // Reset form
+    // 重置表单
     playerNames.value = ['', '']
     goSession(game.id)
   } catch (err: unknown) {

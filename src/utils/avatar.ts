@@ -1,4 +1,4 @@
-// DJB2 Hash Algorithm
+// DJB2 哈希算法
 const djb2 = (str: string): number => {
   let hash = 5381
   for (let i = 0; i < str.length; i++) {
@@ -12,14 +12,14 @@ const COLORS = {
   cool: ['#54A0FF', '#2E86DE', '#00D2D3', '#1DD1A1', '#5F27CD'],
 }
 
-// Simple SVG templates for flat avatars
+// 扁平头像的简单 SVG 模板
 const generateSvg = (index: number, type: 'warm' | 'cool') => {
   const bg =
     type === 'warm'
       ? COLORS.warm[index % COLORS.warm.length]
       : COLORS.cool[index % COLORS.cool.length]
 
-  // Simple geometric faces
+  // 简单的几何面孔
   const svg = `
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   <circle cx="50" cy="50" r="50" fill="${bg}"/>
@@ -34,7 +34,7 @@ const generateSvg = (index: number, type: 'warm' | 'cool') => {
 
 export const AVATARS: string[] = []
 
-// Generate 20 avatars (10 warm, 10 cool)
+// 生成 20 个头像（10 个暖色，10 个冷色）
 for (let i = 0; i < 10; i++) AVATARS.push(generateSvg(i, 'warm'))
 for (let i = 0; i < 10; i++) AVATARS.push(generateSvg(i, 'cool'))
 

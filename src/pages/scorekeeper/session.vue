@@ -39,9 +39,10 @@
       </view>
 
       <view class="player-grid">
-        <view v-for="p in game.players" :key="p.id" class="player-card glass-card">
+        <view v-for="(p, idx) in game.players" :key="p.id" class="player-card glass-card">
           <!-- Left: Avatar & Name -->
           <view class="player-basic">
+            <view class="player-index">{{ idx + 1 }}</view>
             <image :src="getAvatar(p.name)" class="avatar" />
             <view class="name-container">
               <input
@@ -65,16 +66,31 @@
             <text class="score-label">总分</text>
           </view>
 
-          <!-- Right: Stepper -->
-          <view class="score-input-group">
-            <view class="stepper-btn" @tap="adjustScore(p.id, -1)">-</view>
-            <input
-              v-model="deltaDraft[p.id]"
-              class="round-score-input"
-              type="number"
-              placeholder="0"
-            />
-            <view class="stepper-btn" @tap="adjustScore(p.id, 1)">+</view>
+          <!-- Right: Stepper & Sort Controls -->
+          <view class="player-actions">
+            <view class="sort-controls">
+              <view
+                v-if="idx > 0"
+                class="sort-btn"
+                @tap="onMoveUp(idx)"
+              >↑</view>
+              <view
+                v-if="idx < game.players.length - 1"
+                class="sort-btn"
+                @tap="onMoveDown(idx)"
+              >↓</view>
+            </view>
+            <view class="score-input-group">
+              <view class="stepper-btn" @tap="adjustScore(p.id, -1)">-</view>
+              <input
+                v-model="deltaDraft[p.id]"
+                class="round-score-input"
+                type="text"
+                placeholder="0"
+                @input="sanitizeScoreInput(p.id)"
+              />
+              <view class="stepper-btn" @tap="adjustScore(p.id, 1)">+</view>
+            </view>
           </view>
         </view>
       </view>
@@ -129,7 +145,7 @@ const deltaDraft = reactive<Record<PlayerId, string>>({})
 const playerNameDraft = reactive<Record<PlayerId, string>>({})
 const roundNote = ref('')
 
-// Add Player Logic
+// 添加玩家逻辑
 const isAddingPlayer = ref(false)
 const newPlayerName = ref('')
 
@@ -149,6 +165,44 @@ const vibrate = () => {
 const adjustScore = (pid: PlayerId, delta: number) => {
   const current = Number(deltaDraft[pid] || 0)
   deltaDraft[pid] = String(current + delta)
+}
+
+const sanitizeScoreInput = (pid: PlayerId) => {
+  let raw = deltaDraft[pid]
+  if (!raw) return
+
+  // 移除所有空格
+  raw = raw.trim()
+
+  // 空字符串允许(用户正在输入)
+  if (raw === '') {
+    deltaDraft[pid] = ''
+    return
+  }
+
+  // 检查是否为有效数字格式(整数或小数,支持负号)
+  // 允许中间状态: '-', '.', '-.', 数字开头等
+  const validPattern = /^-?(\d+\.?\d*|\d*\.?\d+)$/
+
+  // 特殊情况:允许用户正在输入的中间状态
+  const isIntermediateState = raw === '-' || raw === '.' || raw === '-.' || /^\d+\.?$/.test(raw)
+
+  if (!validPattern.test(raw) && !isIntermediateState) {
+    // 无效格式,清空输入
+    deltaDraft[pid] = ''
+    uni.showToast({ title: '请输入有效数字', icon: 'none', duration: 1000 })
+    return
+  }
+
+  // 限制小数点位数(最多2位小数)
+  if (raw.includes('.')) {
+    const parts = raw.split('.')
+    if (parts[1] && parts[1].length > 2) {
+      raw = `${parts[0]}.${parts[1].slice(0, 2)}`
+    }
+  }
+
+  deltaDraft[pid] = raw
 }
 
 const clearDraft = () => {
@@ -229,7 +283,7 @@ const onRenamePlayer = (pid: PlayerId) => {
 
 const canRemovePlayer = (pid: PlayerId) => {
   if (!game.value) return false
-  // Check if player has any non-zero delta in rounds
+  // 检查玩家是否在任何回合中有非零分数变更
   return !game.value.rounds.some(r => {
     const delta = r.deltas[pid]
     return typeof delta === 'number' && delta !== 0
@@ -252,6 +306,16 @@ const onRemovePlayer = (pid: PlayerId) => {
       }
     },
   })
+}
+
+const onMoveUp = (index: number) => {
+  if (!game.value) return
+  scorekeeperStore.reorderPlayers(game.value.id, index, index - 1)
+}
+
+const onMoveDown = (index: number) => {
+  if (!game.value) return
+  scorekeeperStore.reorderPlayers(game.value.id, index, index + 1)
 }
 </script>
 
@@ -410,6 +474,21 @@ const onRemovePlayer = (pid: PlayerId) => {
     flex: 1; /* Takes available space */
     min-width: 0; /* Allow shrinking */
 
+    .player-index {
+      width: 44rpx;
+      height: 44rpx;
+      border-radius: 50%;
+      background: rgba(91, 108, 255, 0.15);
+      color: #5b6cff;
+      font-size: 24rpx;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12rpx;
+      flex-shrink: 0;
+    }
+
     .avatar {
       width: 80rpx;
       height: 80rpx;
@@ -483,38 +562,66 @@ const onRemovePlayer = (pid: PlayerId) => {
     }
   }
 
-  .score-input-group {
+  .player-actions {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 8rpx;
-    background: rgba(255, 255, 255, 0.3);
-    padding: 6rpx;
-    border-radius: 16rpx;
     flex-shrink: 0;
 
-    .stepper-btn {
-      width: 56rpx;
-      height: 56rpx;
-      border-radius: 12rpx;
-      background: #fff;
+    .sort-controls {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32rpx;
-      color: #5b6cff;
-      box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+      gap: 4rpx;
 
-      &:active {
-        transform: scale(0.95);
+      .sort-btn {
+        width: 40rpx;
+        height: 40rpx;
+        border-radius: 8rpx;
+        background: rgba(255, 255, 255, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24rpx;
+        color: #666;
+
+        &:active {
+          background: rgba(91, 108, 255, 0.2);
+          color: #5b6cff;
+        }
       }
     }
 
-    .round-score-input {
-      width: 72rpx;
-      text-align: center;
-      font-size: 32rpx;
-      font-weight: 700;
-      color: #1a1a1a;
+    .score-input-group {
+      display: flex;
+      align-items: center;
+      gap: 8rpx;
+      background: rgba(255, 255, 255, 0.3);
+      padding: 6rpx;
+      border-radius: 16rpx;
+
+      .stepper-btn {
+        width: 56rpx;
+        height: 56rpx;
+        border-radius: 12rpx;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32rpx;
+        color: #5b6cff;
+        box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+
+      .round-score-input {
+        width: 72rpx;
+        text-align: center;
+        font-size: 32rpx;
+        font-weight: 700;
+        color: #1a1a1a;
+      }
     }
   }
 }

@@ -8,6 +8,7 @@ import {
   redo,
   renamePlayer,
   removePlayer,
+  reorderPlayers,
   undo,
 } from '../../domain/scorekeeper/scorekeeper'
 import {
@@ -76,6 +77,12 @@ export const scorekeeperStore = {
     const game = state.games.find(g => g.id === gameId)
     if (!game) throw new Error('对局不存在')
     replaceGame(removePlayer(game, playerId))
+  },
+
+  reorderPlayers: (gameId: GameId, fromIndex: number, toIndex: number) => {
+    const game = state.games.find(g => g.id === gameId)
+    if (!game) throw new Error('对局不存在')
+    replaceGame(reorderPlayers(game, fromIndex, toIndex))
   },
 
   addRound: (gameId: GameId, deltas: Record<PlayerId, number>, note?: string) => {

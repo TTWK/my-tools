@@ -105,6 +105,27 @@ export const removePlayer = (game: Game, playerId: PlayerId): Game => {
   return { ...game, players: game.players.filter(p => p.id !== playerId) }
 }
 
+/**
+ * 调整玩家顺序
+ * @param game 游戏对象
+ * @param fromIndex 原位置索引
+ * @param toIndex 目标位置索引
+ */
+export const reorderPlayers = (game: Game, fromIndex: number, toIndex: number): Game => {
+  if (fromIndex < 0 || fromIndex >= game.players.length) {
+    throw new Error('原位置索引无效')
+  }
+  if (toIndex < 0 || toIndex >= game.players.length) {
+    throw new Error('目标位置索引无效')
+  }
+  if (fromIndex === toIndex) return game
+
+  const players = [...game.players]
+  const [moved] = players.splice(fromIndex, 1)
+  players.splice(toIndex, 0, moved)
+  return { ...game, players }
+}
+
 const validateRound = (game: Game, deltas: Record<PlayerId, number>) => {
   const playerIdSet = new Set(game.players.map(p => p.id))
   for (const [playerId, delta] of Object.entries(deltas)) {

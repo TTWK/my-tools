@@ -14,7 +14,7 @@ onHide(() => {
 })
 </script>
 <style>
-/* Global Styles */
+/* 全局样式 */
 page {
   font-family:
     'Inter',
@@ -63,7 +63,7 @@ page {
   transform: scale(0.98);
 }
 
-/* 8px Grid Utilities */
+/* 8px 网格工具类 */
 .mb-1 {
   margin-bottom: 8px;
 }
