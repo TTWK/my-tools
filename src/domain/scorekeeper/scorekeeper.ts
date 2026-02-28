@@ -1,4 +1,9 @@
-export type GameTypeId = 'generic' | 'mahjong' | 'poker'
+// ==================== 游戏类型定义 ====================
+// generic: 通用加减分
+// fuzhou_mahjong: 福州麻将（含花牌、金牌、番数计算）
+// doudizhu: 斗地主（三人，支持叫分/抢地主、炸弹翻倍）
+// fuzhou_510k: 福州510K（四人，亮主、正副510K、抢分制）
+export type GameTypeId = 'generic' | 'fuzhou_mahjong' | 'doudizhu' | 'fuzhou_510k'
 
 export type PlayerId = string
 export type RoundId = string

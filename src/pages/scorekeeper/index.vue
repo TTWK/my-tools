@@ -81,7 +81,7 @@ import { getAvatar } from '../../utils/avatar'
 
 const createOpen = ref(true)
 const gameTypeIndex = ref(0)
-const playerNames = ref<string[]>(['', ''])
+const playerNames = ref<string[]>(Array(scorekeeperStore.gameTypes[0].defaultPlayers || 2).fill(''))
 
 const gameTypeNames = computed(() => scorekeeperStore.gameTypes.map(t => t.name))
 const games = computed(() => scorekeeperStore.state.games)
@@ -90,9 +90,28 @@ const toggleCreate = () => {
   createOpen.value = !createOpen.value
 }
 
-const onGameTypeChange = (event: unknown) => {
-  const detailValue = (event as { detail?: { value?: string | number } }).detail?.value
+const onGameTypeChange = (event: any) => {
+  const detailValue = event.detail?.value
   gameTypeIndex.value = Number(detailValue ?? 0)
+
+  // 自动更新人数
+  const type = scorekeeperStore.gameTypes[gameTypeIndex.value]
+  if (type && type.defaultPlayers) {
+    const currentCount = playerNames.value.length
+    const targetCount = type.defaultPlayers
+
+    if (currentCount < targetCount) {
+      // 补充人数
+      for (let i = 0; i < targetCount - currentCount; i++) {
+        playerNames.value.push('')
+      }
+    } else if (currentCount > targetCount) {
+      // 如果有多余的人，且最后几个是空的，则移除
+      // 但为了用户体验，通常不建议直接减少已经填写的名字
+      // 这里我们根据模板强制调整人数，如果有多出的空位则移除
+      playerNames.value = playerNames.value.slice(0, targetCount)
+    }
+  }
 }
 
 const addPlayerInput = () => {
@@ -128,7 +147,8 @@ const createNewGame = () => {
   try {
     const game = scorekeeperStore.createGame(typeId, names)
     // 重置表单
-    playerNames.value = ['', '']
+    const defaultCount = scorekeeperStore.gameTypes[gameTypeIndex.value]?.defaultPlayers || 2
+    playerNames.value = Array(defaultCount).fill('')
     goSession(game.id)
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : '创建失败'
